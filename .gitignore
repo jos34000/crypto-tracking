@@ -45,3 +45,6 @@ next-env.d.ts
 
 # changelogs
 CHANGELOG.MD
+
+# BDD
+/prisma/bdd.db
