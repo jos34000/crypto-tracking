@@ -1,0 +1,47 @@
+// schema.prisma
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["prismaSchemaFolder"]
+}
+
+datasource db {
+  provider = "sqlite" // Vous pouvez utiliser un autre type de base de données, comme PostgreSQL ou MySQL
+  url      = "file:../bdd.db"
+}
+
+model Crypto {
+  id           Int           @id @default(autoincrement())
+  name         String // Nom complet de la crypto
+  symbol       String // Abréviation (surnom)
+  transactions Transaction[]
+  dailyStats   DailyStat[]
+}
+
+model Transaction {
+  id               Int      @id @default(autoincrement())
+  cryptoId         Int
+  crypto           Crypto   @relation(fields: [cryptoId], references: [id])
+  montantAchatEUR  Float
+  prixUnitaire     Float
+  montantAchatCoin Float
+  dateAchat        DateTime
+  typeAchat        String
+  totalCoins       Float
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model DailyStat {
+  id            Int      @id @default(autoincrement())
+  cryptoId      Int
+  crypto        Crypto   @relation(fields: [cryptoId], references: [id])
+  date          DateTime
+  prixMinimum   Float? // Nullable pour les cas manquants
+  prixMaximum   Float?
+  prixMoyen     Float
+  quantiteCoin  Float
+  montantCrypto Float
+  variation     String? // Pourcentage en texte (ex: "+2.47%")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
