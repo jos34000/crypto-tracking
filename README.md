@@ -25,7 +25,7 @@ GET /api/lowerPrice?crypto=BTC&date=DD/MM/YYYY
 Récupère le prix le plus haut d'une crypto pour une date donnée.
 
 ```http
-?crypto=BTC&date=DD/MM/YYYY
+GET /api/higherPrice?crypto=BTC&date=DD/MM/YYYY
 ```
 
 ## Installation
@@ -60,7 +60,7 @@ crypto-tracking/
 │   ├── middlewares/    # Middleware API et services
 │   └── types/         # Types TypeScript
 ├── pages/
-│   ├── api/           # Points d'API REST
+│   └─- api/           # Points d'API REST
 └── prisma/
     ├── schema/        # Schéma de base de données
     │   └── schema.prisma
