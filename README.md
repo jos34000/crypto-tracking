@@ -1,90 +1,100 @@
-# Crypto Tracking Application
+# Crypto Price Tracker API
 
-This is a **Crypto Tracking** application built with [Next.js](https://nextjs.org) that allows users to track cryptocurrency prices and transactions. The application fetches data from the Binance API and provides insights into various cryptocurrencies.
+Une API REST construite avec Next.js pour suivre les prix des cryptomonnaies en temps réel via l'API Binance.
 
-## Features
+## Fonctionnalités Principales
 
-- Fetches real-time cryptocurrency data from Binance.
-- Displays daily statistics for different cryptocurrencies.
-- Allows users to view transaction history and details.
-- Utilizes Prisma for database management with SQLite.
-- Responsive design using Tailwind CSS for a modern user interface.
+- ✨ Récupération des prix en temps réel via l'API Binance
+- 📊 Historique des prix (plus haut/plus bas) par date
+- 💱 Conversion automatique entre devises (EUR, USDT, USDC)
+- 🔄 Mise à jour automatique des taux de change
+- 📝 Journalisation des erreurs
 
-## Getting Started
+## Points d'API
 
-To get started with the application, follow these steps:
+### GET /api/lowerPrice
 
-### Prerequisites
+Récupère le prix le plus bas d'une crypto pour une date donnée.
 
-Make sure you have the following installed:
+```http
+GET /api/lowerPrice?crypto=BTC&date=DD/MM/YYYY
+```
 
-- Node.js (version 14 or higher)
-- npm or yarn
+### GET /api/higherPrice
 
-### Installation
+Récupère le prix le plus haut d'une crypto pour une date donnée.
 
-1. Clone the repository:
+```http
+?crypto=BTC&date=DD/MM/YYYY
+```
 
-   ```bash
-   git clone https://github.com/jos34000/crypto-tracking.git
-   cd crypto-tracking
-   ```
+## Installation
 
-2. Install the dependencies:
+```bash
+npm install
+npm run dev
+```
 
-   ```bash
-   npm install
-   # or
-   yarn install
-   ```
+## Variables d'Environnement
 
-3. Set up the database:
+Créez un fichier `.env` à la racine du projet :
 
-   - Ensure you have a SQLite database file named `bdd.db` in the `prisma` directory.
+```env
+DATABASE_URL="file:../bdd.db"
+```
 
-4. Run the development server:
+## Technologies Utilisées
 
-   ```bash
-   npm run dev
-   # or
-   yarn dev
-   ```
+- Next.js 15.0
+- TypeScript
+- Prisma ORM
+- SQLite (développement)
+- API Binance
 
-5. Open your browser and navigate to [http://localhost:3000](http://localhost:3000) to see the application in action.
+## Structure du Projet
 
-## API Endpoints
+```
+crypto-tracking/
+├── lib/
+│   ├── hooks/          # Hooks personnalisés et utilitaires
+│   ├── middlewares/    # Middleware API et services
+│   └── types/         # Types TypeScript
+├── pages/
+│   ├── api/           # Points d'API REST
+└── prisma/
+    ├── schema/        # Schéma de base de données
+    │   └── schema.prisma
+    └── bdd.db
+```
 
-The application provides the following API endpoints:
+## Docker
 
-- **GET /api/higherPrice**: Fetches the highest price of a specified cryptocurrency on a given date.
-- **GET /api/lowerPrice**: Fetches the lowest price of a specified cryptocurrency on a given date.
-- **GET /api/test**: A test endpoint to verify logging functionality.
+Construction de l'image :
 
-## Technologies Used
+```bash
+docker build -t crypto-tracking .
+```
 
-- **Next.js**: Framework for building server-rendered React applications.
-- **React**: JavaScript library for building user interfaces.
-- **Prisma**: ORM for database management.
-- **SQLite**: Lightweight database for storing application data.
-- **Tailwind CSS**: Utility-first CSS framework for styling.
-- **Binance API**: External API for fetching cryptocurrency data.
+Exécution du conteneur :
 
-## Learn More
+```bash
+docker run -p 3000:3000 crypto-tracking
+```
 
-To learn more about the technologies used in this project, check out the following resources:
+## Contribution
 
-- [Next.js Documentation](https://nextjs.org/docs)
-- [Prisma Documentation](https://www.prisma.io/docs)
-- [Tailwind CSS Documentation](https://tailwindcss.com/docs)
+1. Fork le projet
+2. Créez votre branche (`git checkout -b feature/amazing-feature`)
+3. Commit vos changements (`git commit -m 'feat: add amazing feature'`)
+4. Push vers la branche (`git push origin feature/amazing-feature`)
+5. Ouvrez une Pull Request
 
-## Deployment
+## Licence
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme).
+MIT
 
-## Contributing
+## Contact
 
-Contributions are welcome! Please feel free to submit a pull request or open an issue for any suggestions or improvements.
+Jocelyn Sainson - [@JocelynSainson](https://x.com/jocelynsainson)
 
-## License
-
-This project is licensed under the MIT License.
+Lien du projet: [https://github.com/jos34000/crypto-tracking](https://github.com/jos34000/crypto-tracking)
