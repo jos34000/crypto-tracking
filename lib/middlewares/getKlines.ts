@@ -1,16 +1,15 @@
-import clearDate from "../hooks/clearDate";
-import clearNumber from "../hooks/clearNumber";
-import convertCurrency from "../hooks/convertCurrency";
-import logError from "../hooks/logs";
-import { toTimestamp } from "../hooks/toTimestamp";
+import clearDate from "@/hooks/clearDate";
+import clearNumber from "@/hooks/clearNumber";
+import { convertCurrency } from "@/hooks/convertCurrency";
+import logError from "@/hooks/logs";
+import { toTimestamp } from "@/hooks/toTimestamp";
 
 // Types
 type PriceData = {
-  prixOuverture: number;
-  high: number;
-  low: number;
-  prixFermeture: number;
-  volume: number;
+  prixOuverture: number | string;
+  high: number | string;
+  low: number | string;
+  prixFermeture: number | string;
 };
 
 type KlineData = {
@@ -43,6 +42,10 @@ const fetchKlineData = async (
   return await response.json();
 };
 
+const isPriceData = (data: string | PriceData): data is PriceData => {
+  return typeof data === "object" && data !== null;
+};
+
 const getKlines = async (
   crypto: string,
   date: string
@@ -68,7 +71,6 @@ const getKlines = async (
             high: clearNumber(item[2].toString()),
             low: clearNumber(item[3].toString()),
             prixFermeture: clearNumber(item[4].toString()),
-            volume: clearNumber(item[5].toString()),
           };
         });
       }
@@ -77,9 +79,55 @@ const getKlines = async (
     // Conversion des devises si nécessaire
     for (const cryptoKey in pricesByCrypto) {
       const entry = pricesByCrypto[cryptoKey];
-      for (const fiat of FIAT_CURRENCIES) {
-        if (!entry[fiat]) {
-          if (entry.EUR) {
+
+      // Si on a des données en USDT mais pas en EUR valides
+      if (
+        (!entry.EUR || Object.values(entry.EUR).some((val) => val === "NaN")) &&
+        entry.USDT &&
+        typeof entry.USDT !== "string"
+      ) {
+        const prixOuverture = await convertCurrency(
+          entry.USDT.prixOuverture.toString(),
+          "USDT",
+          "EUR"
+        );
+        const high = await convertCurrency(
+          entry.USDT.high.toString(),
+          "USDT",
+          "EUR"
+        );
+        const low = await convertCurrency(
+          entry.USDT.low.toString(),
+          "USDT",
+          "EUR"
+        );
+        const prixFermeture = await convertCurrency(
+          entry.USDT.prixFermeture.toString(),
+          "USDT",
+          "EUR"
+        );
+
+        entry.EUR = {
+          prixOuverture: clearNumber(prixOuverture.toString()),
+          high: clearNumber(high.toString()),
+          low: clearNumber(low.toString()),
+          prixFermeture: clearNumber(prixFermeture.toString()),
+        };
+      }
+
+      // Une fois qu'on a l'EUR, on peut convertir vers les autres devises
+      if (
+        entry.EUR &&
+        isPriceData(entry.EUR) &&
+        !Object.values(entry.EUR).some((val) => val === "NaN")
+      ) {
+        for (const fiat of FIAT_CURRENCIES) {
+          if (
+            (!entry[fiat] ||
+              (isPriceData(entry[fiat]) &&
+                Object.values(entry[fiat]).some((val) => val === "NaN"))) &&
+            fiat !== "EUR"
+          ) {
             const prixOuverture = await convertCurrency(
               entry.EUR.prixOuverture.toString(),
               "EUR",
@@ -102,11 +150,10 @@ const getKlines = async (
             );
 
             entry[fiat] = {
-              prixOuverture: clearNumber(prixOuverture),
-              high: clearNumber(high),
-              low: clearNumber(low),
-              prixFermeture: clearNumber(prixFermeture),
-              volume: clearNumber(entry.EUR.volume),
+              prixOuverture: clearNumber(prixOuverture.toString()),
+              high: clearNumber(high.toString()),
+              low: clearNumber(low.toString()),
+              prixFermeture: clearNumber(prixFermeture.toString()),
             };
           }
         }
