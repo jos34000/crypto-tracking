@@ -22,17 +22,17 @@ export default async function handler(
 
     const validation = validateQueryParams(crypto, date);
     if (!validation.valid) {
-      logError("lowerPrice.ts", "getLowerPrice", validation.error);
+      logError("higherPrice.ts", "getHigherPrice", validation.error);
       res.status(400).json({ error: validation.error });
       return;
     }
 
     try {
       let response = await getKlines(crypto, date);
-      const lowValue = response[crypto]?.EUR?.low;
-      res.status(200).json({ low: lowValue });
+      const highValue = response[crypto]?.EUR?.high;
+      res.status(200).json({ high: highValue });
     } catch (error) {
-      logError("lowerPrice.ts", "getLowerPrice", error.message);
+      logError("higherPrice.ts", "getHigherPrice", error.message);
       res
         .status(500)
         .json({ error: "Erreur lors de la récupération des données" });
