@@ -12,6 +12,8 @@
   },
   "dependencies": {
     "@prisma/client": "^5.22.0",
+    "@semantic-release/release-notes-generator": "^14.0.1",
+    "conventional-changelog-conventionalcommits": "^8.0.0",
     "fs": "^0.0.1-security",
     "next": "15.0.3",
     "path": "^0.12.7",
