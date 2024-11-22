@@ -1,4 +1,4 @@
-import { ValidationResult } from "@/types/klines";
+import { ValidationResult } from "@/types/types";
 
 export const validateQueryParams = (
   crypto: string | null,

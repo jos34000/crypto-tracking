@@ -7,5 +7,3 @@ const clearNumber = (num: string): string => {
   return prix;
 };
 export default clearNumber;
-let ok = "ok";
-ok = ok.toLocaleString();

@@ -16,7 +16,6 @@ function logError(
   }
 
   const logFilePath = path.join(logDirPath, `${fileName}.log`);
-  console.log(logFilePath);
 
   const now = new Date();
   const date = now.toLocaleDateString("fr-FR");
