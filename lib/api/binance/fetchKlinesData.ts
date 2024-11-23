@@ -1,5 +1,5 @@
 import { BINANCE_API_BASE_URL } from "@/constants/currencies";
-import logError from "@/hooks/logs";
+import logError from "@/utils/logging/logs";
 
 const fileName = "fetchKlinesData";
 
@@ -13,7 +13,6 @@ const fetchKlineData = async (
     const response = await fetch(
       `${BINANCE_API_BASE_URL}/klines?symbol=${symbol}${fiat}&interval=1d&startTime=${startDate}&endTime=${endDate}`
     );
-    console.log(response);
 
     if (!response.ok) {
       throw new Error(`Données non disponibles pour ${symbol}${fiat}`);

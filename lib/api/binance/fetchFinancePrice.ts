@@ -1,5 +1,5 @@
 import { BINANCE_API_BASE_URL } from "@/constants/currencies";
-import logError from "@/hooks/logs";
+import logError from "@/utils/logging/logs";
 
 const fileName = "fetchBinancePrice";
 
