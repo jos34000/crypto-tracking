@@ -1,6 +1,6 @@
 import logError from "@/hooks/logs";
+import { validateQueryParams } from "@/hooks/validateRequest";
 import getKlines from "@/middlewares/getKlines";
-import { validateQueryParams } from "@/middlewares/validateRequest";
 import { NextApiRequest, NextApiResponse } from "next";
 
 const fileName = "lowerPrice";
