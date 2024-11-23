@@ -1,4 +1,4 @@
-import { fetchBinancePrice } from "@/hooks/fetchFinancePrice";
+import { fetchBinancePrice } from "@/api/binance/fetchFinancePrice";
 
 export const convertCurrency = async (
   amount: string,

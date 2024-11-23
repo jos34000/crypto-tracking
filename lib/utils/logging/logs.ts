@@ -1,15 +1,13 @@
 import fs from "fs";
 import path from "path";
-import { fileURLToPath } from "url";
 
 function logError(
   fileName: string,
   functionName: string,
   error: unknown
 ): void {
-  const __dirname = path.dirname(fileURLToPath(import.meta.url));
-
-  const logDirPath = path.join(__dirname, "../../logs");
+  const rootDir = process.cwd();
+  const logDirPath = path.join(rootDir, "logs");
 
   if (!fs.existsSync(logDirPath)) {
     fs.mkdirSync(logDirPath, { recursive: true });
