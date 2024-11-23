@@ -1,5 +1,5 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
+/pages/api/test.ts
 # dependencies
 /node_modules
 /.pnp
@@ -43,8 +43,9 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# changelogs
+# doc
 CHANGELOG.MD
+RECO.md
 
 # BDD
 /prisma/bdd.db

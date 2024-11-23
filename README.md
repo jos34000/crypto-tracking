@@ -9,24 +9,31 @@ Une API REST construite avec Next.js pour suivre les prix des cryptomonnaies en 
 - 💱 Conversion automatique entre devises (EUR, USDT, USDC)
 - 🔄 Mise à jour automatique des taux de change
 - 📝 Journalisation des erreurs
+- 🔐 Authentification des utilisateurs
+- 💼 Gestion de portefeuille
+- 📈 Suivi des transactions
+- ⚡ Alertes de prix personnalisées
+- 📊 Statistiques journalières et mensuelles
 
 ## Points d'API
 
-### GET /api/lowerPrice
+### GET /api/data/lowerPrice
 
 Récupère le prix le plus bas d'une crypto pour une date donnée.
 
 ```http
-GET /api/lowerPrice?crypto=BTC&date=DD/MM/YYYY
+GET /api/data/lowerPrice?crypto=BTC&date=DD/MM/YYYY
 ```
 
-### GET /api/higherPrice
+### GET /api/data/higherPrice
 
 Récupère le prix le plus haut d'une crypto pour une date donnée.
 
 ```http
-GET /api/higherPrice?crypto=BTC&date=DD/MM/YYYY
+GET /api/data/higherPrice?crypto=BTC&date=DD/MM/YYYY
 ```
+
+### ET PLUS A VENIR ...
 
 ## Installation
 
@@ -40,7 +47,8 @@ npm run dev
 Créez un fichier `.env` à la racine du projet :
 
 ```env
-DATABASE_URL="file:../bdd.db"
+DATABASE_URL="postgresql://..."
+DEFAULT_CURRENCY="EUR"
 ```
 
 ## Technologies Utilisées
@@ -48,8 +56,9 @@ DATABASE_URL="file:../bdd.db"
 - Next.js 15.0
 - TypeScript
 - Prisma ORM
-- SQLite (développement)
+- PostgreSQL
 - API Binance
+- Docker
 
 ## Structure du Projet
 
@@ -69,7 +78,16 @@ crypto-tracking/
 
 ## Docker
 
-Construction de l'image :
+Deux options s'offrent à vous :
+
+### 1. Utiliser l'image officielle
+
+```bash
+docker pull jos34000/crypto-tracking:latest
+docker run -p 3000:3000 jos34000/crypto-tracking
+```
+
+### 2. Construction de votre propre image :
 
 ```bash
 docker build -t crypto-tracking .
