@@ -5,148 +5,190 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite" // Vous pouvez utiliser un autre type de base de données, comme PostgreSQL ou MySQL
-  url      = "file:../bdd.db"
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Authentication
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime? @map("email_verified")
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
+
+  @@map("users")
+}
+
+// OAuth Accounts
+model Account {
+  id                String  @id @default(cuid())
+  userId            String  @map("user_id")
+  type              String
+  provider          String
+  providerAccountId String  @map("provider_account_id")
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+// Sessions de connexion
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique @map("session_token")
+  userId       String   @map("user_id")
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+// Données métier
+model TradingAccount {
+  id           String        @id @default(cuid())
+  userId       String        @unique
+  username     String        @unique
+  mainCurrency String
+  transactions Transaction[]
+  portfolios   Portfolio[]
+  alerts       Alert[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
 }
 
 model Crypto {
-  id           Int           @id @default(autoincrement())
-  name         String // Nom complet de la crypto
-  symbol       String // Abréviation (surnom)
-  transactions Transaction[] // Transactions associées
-  dailyStats   DailyStat[] // Statistiques quotidiennes
-  monthlyStats MonthlyStat[] // Statistiques mensuelles
-  portfolios   Portfolio[] // Portefeuilles associés
-  alerts       Alert[] // Alertes associées
+  id           String        @id @default(cuid())
+  name         String
+  symbol       String        @unique
+  transactions Transaction[]
+  dailyStats   DailyStat[]
+  monthlyStats MonthlyStat[]
+  portfolios   Portfolio[]
+  alerts       Alert[]
+
+  @@index([symbol])
 }
 
 model Transaction {
-  id                 Int                  @id @default(autoincrement())
-  cryptoId           Int
+  id                 String               @id @default(cuid())
+  accountId          String
+  account            TradingAccount       @relation(fields: [accountId], references: [id])
+  cryptoId           String
   crypto             Crypto               @relation(fields: [cryptoId], references: [id])
-  montantAchatEUR    Float
+  type               TransactionType
+  montantEUR         Float
   prixUnitaire       Float
-  montantAchatCoin   Float
-  dateAchat          DateTime
-  typeAchat          String
-  isConverted        Boolean
-  convertCurrency    String? // Devise de conversion (nullable)
-  convertQty         Float? // Quantité convertie (nullable)
-  totalCoins         Float
+  quantiteCrypto     Float
+  date               DateTime
+  isConverted        Boolean              @default(false)
+  convertCurrency    String?
+  convertQuantity    Float?
   createdAt          DateTime             @default(now())
   updatedAt          DateTime             @updatedAt
-  userId             Int? // Utilisateur associé (nullable)
-  user               User?                @relation(fields: [userId], references: [id])
-  transactionHistory TransactionHistory[] // Historique des modifications
-}
-
-model DailyStat {
-  id            Int      @id @default(autoincrement())
-  cryptoId      Int
-  crypto        Crypto   @relation(fields: [cryptoId], references: [id])
-  date          DateTime @unique // Date unique pour chaque crypto
-  prixMinimum   Float?
-  prixMaximum   Float?
-  prixMoyen     Float
-  quantiteCoin  Float
-  montantCrypto Float
-  variation     String?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-}
-
-model MonthlyStat {
-  id            Int      @id @default(autoincrement())
-  cryptoId      Int
-  crypto        Crypto   @relation(fields: [cryptoId], references: [id])
-  date          DateTime @unique // Date unique pour chaque crypto
-  prixMinimum   Float?
-  prixMaximum   Float?
-  prixMoyen     Float
-  quantiteCoin  Float
-  montantCrypto Float
-  variation     String?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-}
-
-model User {
-  id           Int           @id @default(autoincrement())
-  username     String        @unique
-  email        String        @unique
-  passwordHash String
-  transactions Transaction[] // Transactions associées
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  portfolios   Portfolio[] // Portefeuilles associés
-  alerts       Alert[] // Alertes associées
-  sessions     Session[] // Sessions associées
-}
-
-model Portfolio {
-  id        Int      @id @default(autoincrement())
-  userId    Int
-  user      User     @relation(fields: [userId], references: [id])
-  cryptoId  Int
-  crypto    Crypto   @relation(fields: [cryptoId], references: [id])
-  quantity  Float
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model Alert {
-  id        Int      @id @default(autoincrement())
-  userId    Int
-  user      User     @relation(fields: [userId], references: [id])
-  cryptoId  Int
-  crypto    Crypto   @relation(fields: [cryptoId], references: [id])
-  threshold Float
-  alertType String // ex: "above", "below"
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model Exchange {
-  id        Int      @id @default(autoincrement())
-  name      String   @unique
-  url       String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model TransactionType {
-  id        Int      @id @default(autoincrement())
-  name      String   @unique // ex: "buy", "sell", "transfer"
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model News {
-  id          Int      @id @default(autoincrement())
-  title       String
-  content     String
-  url         String
-  publishedAt DateTime
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  TransactionHistory TransactionHistory[]
 }
 
 model TransactionHistory {
-  id            Int         @id @default(autoincrement())
-  transactionId Int
+  id            String      @id @default(cuid())
+  transactionId String
   transaction   Transaction @relation(fields: [transactionId], references: [id])
-  changeType    String // ex: "update", "delete"
+  changeType    String
   oldValue      String
   newValue      String
-  changedAt     DateTime    @default(now())
+  createdAt     DateTime    @default(now())
+
+  @@index([transactionId])
 }
 
-model Session {
-  id        Int      @id @default(autoincrement())
-  userId    Int
-  user      User     @relation(fields: [userId], references: [id])
-  token     String   @unique // Token d'authentification
-  createdAt DateTime @default(now())
-  expiresAt DateTime // Date d'expiration du token
+model DailyStat {
+  id          String   @id @default(cuid())
+  cryptoId    String
+  crypto      Crypto   @relation(fields: [cryptoId], references: [id])
+  date        DateTime
+  prixMinimum Float
+  prixMaximum Float
+  prixMoyen   Float
+  volume      Float
+  variation   Float
+
+  @@unique([cryptoId, date])
+  @@index([date])
+}
+
+model MonthlyStat {
+  id          String   @id @default(cuid())
+  cryptoId    String
+  crypto      Crypto   @relation(fields: [cryptoId], references: [id])
+  date        DateTime
+  prixMinimum Float
+  prixMaximum Float
+  prixMoyen   Float
+  volume      Float
+  variation   Float
+
+  @@unique([cryptoId, date])
+  @@index([date])
+}
+
+model Portfolio {
+  id        String         @id @default(cuid())
+  accountId String
+  account   TradingAccount @relation(fields: [accountId], references: [id])
+  cryptoId  String
+  crypto    Crypto         @relation(fields: [cryptoId], references: [id])
+  quantity  Float
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+
+  @@unique([accountId, cryptoId])
+}
+
+model Alert {
+  id        String         @id @default(cuid())
+  accountId String
+  account   TradingAccount @relation(fields: [accountId], references: [id])
+  cryptoId  String
+  crypto    Crypto         @relation(fields: [cryptoId], references: [id])
+  type      AlertType
+  threshold Float
+  isActive  Boolean        @default(true)
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+
+  @@index([accountId])
+  @@index([cryptoId])
+}
+
+enum TransactionType {
+  ACHAT
+  VENTE
+  CONVERSION
+  TRANSFERT
+}
+
+enum AlertType {
+  PRIX_SUPERIEUR
+  PRIX_INFERIEUR
+  VARIATION_POSITIVE
+  VARIATION_NEGATIVE
 }
